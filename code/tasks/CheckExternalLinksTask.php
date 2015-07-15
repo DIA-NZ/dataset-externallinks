@@ -136,7 +136,7 @@ class CheckExternalLinksTask extends BuildTask {
 			// Check value of html area
 			$page = $pageTrack->Page();
 			$this->log("Checking {$page->Title}");
-			$htmlValue = Injector::inst()->create('HTMLValue', $page->Content);
+			$htmlValue = Injector::inst()->create('HTMLValue', $page->Description);
 			if (!$htmlValue->isValid()) continue;
 
 			// Check each link
