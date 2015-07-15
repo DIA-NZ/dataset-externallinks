@@ -40,7 +40,7 @@ class BrokenExternalPageTrackStatus extends DataObject {
 		$pageIDs = $this
 			->getIncompleteTracks()
 			->column('PageID');
-		if($pageIDs) return Versioned::get_by_stage('SiteTree', 'Stage')
+		if($pageIDs) return DataSet::get()
 			->byIDs($pageIDs);
 	}
 
@@ -99,7 +99,7 @@ class BrokenExternalPageTrackStatus extends DataObject {
 		$status->updateJobInfo('Creating new tracking object');
 
 		// Setup all pages to test
-		$pageIDs = Versioned::get_by_stage('SiteTree', 'Stage')
+        $pageIDs = DataSet::get()
 			->column('ID');
 		foreach ($pageIDs as $pageID) {
 			$trackPage = BrokenExternalPageTrack::create();
