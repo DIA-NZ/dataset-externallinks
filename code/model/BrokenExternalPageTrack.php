@@ -10,7 +10,7 @@ class BrokenExternalPageTrack extends DataObject {
 	);
 
 	private static $has_one = array(
-		'Page' => 'SiteTree',
+		'Page' => 'DataSet',
 		'Status' => 'BrokenExternalPageTrackStatus'
 	);
 
@@ -22,7 +22,7 @@ class BrokenExternalPageTrack extends DataObject {
 	 * @return SiteTree
 	 */
 	public function Page() {
-		return Versioned::get_by_stage('SiteTree', 'Stage')
+		return DataSet::get()
 			->byID($this->PageID);
 	}
 }
