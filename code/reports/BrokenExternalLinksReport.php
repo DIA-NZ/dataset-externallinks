@@ -61,7 +61,7 @@ class BrokenExternalLinksReport extends SS_Report {
 	}
 
 	public function getCMSFields() {
-		Requirements::javascript('externallinks/javascript/BrokenExternalLinksReport.js');
+		Requirements::javascript('silverstripe-externallinks/javascript/BrokenExternalLinksReport.js');
 		$fields = parent::getCMSFields();
 
 		$reportResultSpan = '</ br></ br><h3 id="ReportHolder"></h3>';
