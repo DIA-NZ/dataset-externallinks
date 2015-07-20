@@ -98,6 +98,25 @@ class BrokenExternalPageTrackStatus extends DataObject {
 		$status = self::create();
 		$status->updateJobInfo('Creating new tracking object');
 
+        //===========
+
+        $classes_to_check = Config::inst()->get('LinkChecker', 'classes_to_check');
+
+        foreach ($classes_to_check as $class) {
+
+            $set = DataList::create($class)->column('ID');
+
+            foreach ($set as $itemID) {
+                $trackItem = BrokenExternalPageTrack::create();
+                $trackItem->PageID = $itemID;
+                $trackItem->StatusID = $status->ID;
+                $trackItem->write();
+            }
+        }
+
+        //===========
+
+
 		// Setup all pages to test
         $pageIDs = DataSet::get()
 			->column('ID');
