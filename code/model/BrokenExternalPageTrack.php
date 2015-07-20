@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Represents a track for a single page
+ * Represents a track for a single item
  */
-class BrokenExternalPageTrack extends DataObject {
+class BrokenExternalItemTrack extends DataObject {
 
 	private static $db = array(
 		'Processed' => 'Boolean'
 	);
 
 	private static $has_one = array(
-		'Page' => 'DataSet',
-		'Status' => 'BrokenExternalPageTrackStatus'
+		'Item' => 'DataSet',
+		'Status' => 'BrokenExternalItemTrackStatus'
 	);
 
 	private static $has_many = array(
@@ -21,8 +21,8 @@ class BrokenExternalPageTrack extends DataObject {
 	/**
 	 * @return SiteTree
 	 */
-	public function Page() {
+	public function Item() {
 		return DataSet::get()
-			->byID($this->PageID);
+			->byID($this->ItemID);
 	}
 }

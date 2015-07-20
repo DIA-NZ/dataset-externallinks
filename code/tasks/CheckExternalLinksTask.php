@@ -58,12 +58,12 @@ class CheckExternalLinksTask extends BuildTask {
 	}
 
 	/**
-	 * Check the status of a single link on a page
+	 * Check the status of a single link on a item
 	 *
-	 * @param BrokenExternalPageTrack $pageTrack
+	 * @param BrokenExternalItemTrack $itemTrack
 	 * @param DOMNode $link
 	 */
-	protected function checkPageLink(BrokenExternalPageTrack $pageTrack, DOMNode $link) {
+	protected function checkItemLink(BrokenExternalItemTrack $itemTrack, DOMNode $link) {
 		$class = $link->getAttribute('class');
 		$href = $link->getAttribute('href');
 		$markedBroken = preg_match('/\b(ss-broken)\b/', $class);
@@ -78,8 +78,8 @@ class CheckExternalLinksTask extends BuildTask {
 			$brokenLink = new BrokenExternalLink();
 			$brokenLink->Link = $href;
 			$brokenLink->HTTPCode = $httpCode;
-			$brokenLink->TrackID = $pageTrack->ID;
-			$brokenLink->StatusID = $pageTrack->StatusID; // Slight denormalisation here for performance reasons
+			$brokenLink->TrackID = $itemTrack->ID;
+			$brokenLink->StatusID = $itemTrack->StatusID; // Slight denormalisation here for performance reasons
 			$brokenLink->write();
 		}
 
@@ -114,76 +114,76 @@ class CheckExternalLinksTask extends BuildTask {
 	/**
 	 * Runs the links checker and returns the track used
 	 *
-	 * @param int $limit Limit to number of pages to run, or null to run all
-	 * @return BrokenExternalPageTrackStatus
+	 * @param int $limit Limit to number of items to run, or null to run all
+	 * @return BrokenExternalItemTrackStatus
 	 */
 	public function runLinksCheck($limit = null) {
         // Should we update broken links in the database?
         $addClass = Config::inst()->get('ExternalLinks', 'externallinksAddClass');
             // Check the current status
-		$status = BrokenExternalPageTrackStatus::get_or_create();
+		$status = BrokenExternalItemTrackStatus::get_or_create();
 
-		// Calculate pages to run
-		$pageTracks = $status->getIncompleteTracks();
-		if($limit) $pageTracks = $pageTracks->limit($limit);
+		// Calculate items to run
+		$itemTracks = $status->getIncompleteTracks();
+		if($limit) $itemTracks = $itemTracks->limit($limit);
 
-		// Check each page
-		foreach ($pageTracks as $pageTrack) {
+		// Check each item
+		foreach ($itemTracks as $itemTrack) {
 			// Flag as complete
-			$pageTrack->Processed = 1;
-			$pageTrack->write();
+			$itemTrack->Processed = 1;
+			$itemTrack->write();
 
 			// Check value of html area
-			$page = $pageTrack->Page();
-			$this->log("Checking {$page->Title}");
-			$htmlValue = Injector::inst()->create('HTMLValue', $page->Description);
+			$item = $itemTrack->Item();
+			$this->log("Checking {$item->Title}");
+			$htmlValue = Injector::inst()->create('HTMLValue', $item->Description);
 			if (!$htmlValue->isValid()) continue;
 
 			// Check each link
 			$links = $htmlValue->getElementsByTagName('a');
 			foreach($links as $link) {
-				$this->checkPageLink($pageTrack, $link);
+				$this->checkItemLink($itemTrack, $link);
 			}
 
-			// If configured to do so, update content of page based on link fixes / breakages
+			// If configured to do so, update content of item based on link fixes / breakages
             if ($addClass) {
                 $htmlValue->saveHTML();
-                $page->Content = $htmlValue->getContent();
-                $page->write();
+                $item->Content = $htmlValue->getContent();
+                $item->write();
             }
 
-			// Once all links have been created for this page update HasBrokenLinks
-			$count = $pageTrack->BrokenLinks()->count();
+			// Once all links have been created for this item update HasBrokenLinks
+			$count = $itemTrack->BrokenLinks()->count();
 			$this->log("Found {$count} broken links");
 			if($count) {
 				// Bypass the ORM as syncLinkTracking does not allow you to update HasBrokenLink to true
 				DB::query(sprintf(
 					'UPDATE "SiteTree" SET "HasBrokenLink" = 1 WHERE "ID" = \'%d\'',
-					intval($pageTrack->ID)
+					intval($itemTrack->ID)
 				));
 			}
 		}
 
-		$status->updateJobInfo('Updating completed pages');
+		$status->updateJobInfo('Updating completed items');
 		$status->updateStatus();
 		return $status;
 	}
 
-	private function updateCompletedPages($trackID = 0) {
-		$noPages = BrokenExternalPageTrack::get()
+	private function updateCompletedItems($trackID = 0) {
+		$noItems = BrokenExternalItemTrack::get()
 			->filter(array(
 				'TrackID' => $trackID,
 				'Processed' => 1
 			))
 			->count();
-		$track = BrokenExternalPageTrackStatus::get_latest();
-		$track->CompletedPages = $noPages;
+		$track = BrokenExternalItemTrackStatus::get_latest();
+		$track->CompletedItems = $noItems;
 		$track->write();
-		return $noPages;
+		return $noItems;
 	}
 
 	private function updateJobInfo($message) {
-		$track = BrokenExternalPageTrackStatus::get_latest();
+		$track = BrokenExternalItemTrackStatus::get_latest();
 		if($track) {
 			$track->JobInfo = $message;
 			$track->write();

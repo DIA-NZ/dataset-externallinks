@@ -3,12 +3,12 @@
 /**
  * Represents the status of a track run
  *
- * @method DataList TrackedPages()
+ * @method DataList TrackedItems()
  * @method DataList BrokenLinks()
- * @property int $TotalPages Get total pages count
- * @property int $CompletedPages Get completed pages count
+ * @property int $TotalItems Get total items count
+ * @property int $CompletedItems Get completed items count
  */
-class BrokenExternalPageTrackStatus extends DataObject {
+class BrokenExternalItemTrackStatus extends DataObject {
 
 	private static $db = array(
 		'Status' => 'Enum("Completed, Running", "Running")',
@@ -16,7 +16,7 @@ class BrokenExternalPageTrackStatus extends DataObject {
 	);
 
 	private static $has_many = array(
-		'TrackedPages' => 'BrokenExternalPageTrack',
+		'TrackedItems' => 'BrokenExternalItemTrack',
 		'BrokenLinks' => 'BrokenExternalLink'
 	);
 
@@ -32,42 +32,42 @@ class BrokenExternalPageTrackStatus extends DataObject {
 	}
 
 	/**
-	 * Gets the list of Pages yet to be checked
+	 * Gets the list of Items yet to be checked
 	 *
 	 * @return DataList
 	 */
-	public function getIncompletePageList() {
-		$pageIDs = $this
+	public function getIncompleteItemList() {
+		$itemIDs = $this
 			->getIncompleteTracks()
-			->column('PageID');
-		if($pageIDs) return DataSet::get()
-			->byIDs($pageIDs);
+			->column('ItemID');
+		if($itemIDs) return DataSet::get()
+			->byIDs($itemIDs);
 	}
 
 	/**
-	 * Get the list of incomplete BrokenExternalPageTrack
+	 * Get the list of incomplete BrokenExternalItemTrack
 	 *
 	 * @return DataList
 	 */
 	public function getIncompleteTracks() {
 		return $this
-			->TrackedPages()
+			->TrackedItems()
 			->filter('Processed', 0);
 	}
 
 	/**
-	 * Get total pages count
+	 * Get total items count
 	 */
-	public function getTotalPages() {
-		return $this->TrackedPages()->count();
+	public function getTotalItems() {
+		return $this->TrackedItems()->count();
 	}
 
 	/**
-	 * Get completed pages count
+	 * Get completed items count
 	 */
-	public function getCompletedPages() {
+	public function getCompletedItems() {
 		return $this
-			->TrackedPages()
+			->TrackedItems()
 			->filter('Processed', 1)
 			->count();
 	}
@@ -98,14 +98,14 @@ class BrokenExternalPageTrackStatus extends DataObject {
 		$status = self::create();
 		$status->updateJobInfo('Creating new tracking object');
 
-		// Setup all pages to test
-        $pageIDs = DataSet::get()
+		// Setup all items to test
+        $itemIDs = DataSet::get()
 			->column('ID');
-		foreach ($pageIDs as $pageID) {
-			$trackPage = BrokenExternalPageTrack::create();
-			$trackPage->PageID = $pageID;
-			$trackPage->StatusID = $status->ID;
-			$trackPage->write();
+		foreach ($itemIDs as $itemID) {
+			$trackItem = BrokenExternalItemTrack::create();
+			$trackItem->ItemID = $itemID;
+			$trackItem->StatusID = $status->ID;
+			$trackItem->write();
 		}
 
 		return $status;
@@ -120,7 +120,7 @@ class BrokenExternalPageTrackStatus extends DataObject {
 	 * Self check status
 	 */
 	public function updateStatus() {
-		if ($this->CompletedPages == $this->TotalPages) {
+		if ($this->CompletedItems == $this->TotalItems) {
 			$this->Status = 'Completed';
 			$this->updateJobInfo('Setting to completed');
 		}

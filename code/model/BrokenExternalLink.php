@@ -3,8 +3,8 @@
 /**
  * Represents a single link checked for a single run that is broken
  *
- * @method BrokenExternalPageTrack Track()
- * @method BrokenExternalPageTrackStatus Status()
+ * @method BrokenExternalItemTrack Track()
+ * @method BrokenExternalItemTrackStatus Status()
  */
 class BrokenExternalLink extends DataObject {
 
@@ -14,15 +14,15 @@ class BrokenExternalLink extends DataObject {
 	);
 
 	private static $has_one = array(
-		'Track' => 'BrokenExternalPageTrack',
-		'Status' => 'BrokenExternalPageTrackStatus'
+		'Track' => 'BrokenExternalItemTrack',
+		'Status' => 'BrokenExternalItemTrackStatus'
 	);
 
 	private static $summary_fields = array(
 		'Created' => 'Checked',
 		'Link' => 'External Link',
 		'HTTPCodeDescription' => 'HTTP Error Code',
-		'Page.Title' => 'Page link is on'
+		'Item.Title' => 'Item link is on'
 	);
 
 	private static $searchable_fields = array(
@@ -32,8 +32,8 @@ class BrokenExternalLink extends DataObject {
 	/**
 	 * @return SiteTree
 	 */
-	public function Page() {
-		return $this->Track()->Page();
+	public function Item() {
+		return $this->Track()->Item();
 	}
 
 	public function canEdit($member = false) {

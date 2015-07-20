@@ -19,12 +19,12 @@ class CMSExternalLinks_Controller extends Controller {
 			->addHeader('X-Content-Type-Options', 'nosniff');
 
 		// Format status
-		$track = BrokenExternalPageTrackStatus::get_latest();
+		$track = BrokenExternalItemTrackStatus::get_latest();
 		if($track) return json_encode(array(
 			'TrackID' => $track->ID,
 			'Status' => $track->Status,
-			'Completed' => $track->getCompletedPages(),
-			'Total' => $track->getTotalPages()
+			'Completed' => $track->getCompletedItems(),
+			'Total' => $track->getTotalItems()
 		));
 	}
 
@@ -34,13 +34,13 @@ class CMSExternalLinks_Controller extends Controller {
 	 */
 	public function start() {
 		// return if the a job is already running
-		$status = BrokenExternalPageTrackStatus::get_latest();
+		$status = BrokenExternalItemTrackStatus::get_latest();
 		if ($status && $status->Status == 'Running') return;
 
 		// Create a new job
 		if (class_exists('QueuedJobService')) {
 			// Force the creation of a new run
-			BrokenExternalPageTrackStatus::create_status();
+			BrokenExternalItemTrackStatus::create_status();
 			$checkLinks = new CheckExternalLinksJob();
 			singleton('QueuedJobService')->queueJob($checkLinks);
 		} else {

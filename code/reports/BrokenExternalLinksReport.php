@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Content side-report listing pages with external broken links
+ * Content side-report listing items with external broken links
  * @package externallinks
  * @subpackage content
  */
@@ -32,13 +32,13 @@ class BrokenExternalLinksReport extends SS_Report {
 			),
 			'HTTPCodeDescription' => 'HTTP Error Code',
 			"Title" => array(
-				"title" => 'Page link is on',
+				"title" => 'Item link is on',
 				'formatting' => function($value, $item) {
-					$page = $item->Page();
+					$item = $item->Item();
 					return sprintf(
 						'<a href="%s">%s</a>',
-						Convert::raw2att($page->CMSEditLink()),
-						Convert::raw2xml($page->Title)
+						Convert::raw2att($item->CMSEditLink()),
+						Convert::raw2xml($item->Title)
 					);
 				}
 			)
@@ -55,7 +55,7 @@ class BrokenExternalLinksReport extends SS_Report {
 	}
 
 	public function sourceRecords() {
-		$track = BrokenExternalPageTrackStatus::get_latest();
+		$track = BrokenExternalItemTrackStatus::get_latest();
 		if ($track) return $track->BrokenLinks();
 		return new ArrayList();
 	}
