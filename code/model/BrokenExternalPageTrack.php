@@ -10,7 +10,7 @@ class BrokenExternalPageTrack extends DataObject {
 	);
 
 	private static $has_one = array(
-		'Page' => 'DataSet',
+		'Page' => 'DataObject',
 		'Status' => 'BrokenExternalPageTrackStatus'
 	);
 
