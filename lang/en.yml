@@ -4,12 +4,12 @@ en:
     PLURALNAME: 'Broken External Links'
     SINGULARNAME: 'Broken External Link'
     UNKNOWNRESPONSE: 'Unknown Response Code'
-  BrokenExternalPageTrack:
-    PLURALNAME: 'Broken External Page Tracks'
-    SINGULARNAME: 'Broken External Page Track'
-  BrokenExternalPageTrackStatus:
-    PLURALNAME: 'Broken External Page Track Statuss'
-    SINGULARNAME: 'Broken External Page Track Status'
+  BrokenExternalItemTrack:
+    PLURALNAME: 'Broken External Item Tracks'
+    SINGULARNAME: 'Broken External Item Track'
+  BrokenExternalItemTrackStatus:
+    PLURALNAME: 'Broken External Item Track Statuss'
+    SINGULARNAME: 'Broken External Item Track Status'
   CheckExternalLiksJob:
     TITLE: 'Checking for external broken links'
   ExternalBrokenLinksReport:

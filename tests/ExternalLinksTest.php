@@ -7,7 +7,7 @@ class ExternalLinksTest extends SapphireTest {
 	protected static $fixture_file = 'ExternalLinksTest.yml';
 
 	protected $extraDataObjects = array(
-		'ExternalLinksTest_Page'
+		'ExternalLinksTest_Item'
 	);
 
 	public function setUp() {
@@ -78,19 +78,19 @@ class ExternalLinksTest extends SapphireTest {
 		$task->runLinksCheck();
 
 		// Get all links checked
-		$status = BrokenExternalPageTrackStatus::get_latest();
+		$status = BrokenExternalItemTrackStatus::get_latest();
 		$this->assertEquals('Completed', $status->Status);
-		$this->assertEquals(5, $status->TotalPages);
-		$this->assertEquals(5, $status->CompletedPages);
+		$this->assertEquals(5, $status->TotalItems);
+		$this->assertEquals(5, $status->CompletedItems);
 
-		// Check all pages have had the correct HTML adjusted
+		// Check all items have had the correct HTML adjusted
 		for($i = 1; $i <= 5; $i++) {
-			$page = $this->objFromFixture('ExternalLinksTest_Page', 'page'.$i);
-			$this->assertNotEmpty($page->Content);
+			$item = $this->objFromFixture('ExternalLinksTest_Item', 'item'.$i);
+			$this->assertNotEmpty($item->Content);
 			$this->assertEquals(
-				$page->ExpectedContent,
-				$page->Content,
-				"Assert that the content of page{$i} has been updated"
+				$item->ExpectedContent,
+				$item->Content,
+				"Assert that the content of item{$i} has been updated"
 			);
 		}
 
@@ -144,7 +144,7 @@ class ExternalLinksTest extends SapphireTest {
 	}
 }
 
-class ExternalLinksTest_Page extends Page implements TestOnly {
+class ExternalLinksTest_Item extends Item implements TestOnly {
 	private static $db = array(
 		'ExpectedContent' => 'HTMLText'
 	);
