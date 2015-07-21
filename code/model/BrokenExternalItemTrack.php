@@ -1,17 +1,19 @@
 <?php
 
 /**
- * Represents a track for a single page
+ * Represents a track for a single item
  */
-class BrokenExternalPageTrack extends DataObject {
+class BrokenExternalItemTrack extends DataObject {
 
 	private static $db = array(
-		'Processed' => 'Boolean'
+		'Processed' => 'Boolean',
+		'CheckClass' => 'Varchar(50)',
+		'ItemID' => 'Int',
+		'CheckField' => 'Varchar(50)'
 	);
 
 	private static $has_one = array(
-		'Page' => 'DataObject',
-		'Status' => 'BrokenExternalPageTrackStatus'
+		'Status' => 'BrokenExternalItemTrackStatus'
 	);
 
 	private static $has_many = array(
@@ -35,8 +37,9 @@ class BrokenExternalPageTrack extends DataObject {
 	/**
 	 * @return SiteTree
 	 */
-	public function Page() {
-		return DataSet::get()
-			->byID($this->PageID);
+	public function Item() {
+
+		return DataList::create($this->CheckClass)
+			->byID($this->ItemID);
 	}
 }
