@@ -120,27 +120,34 @@ class CheckExternalLinksTask extends BuildTask {
 	public function runLinksCheck($limit = null) {
         // Should we update broken links in the database?
         $addClass = Config::inst()->get('ExternalLinks', 'externallinksAddClass');
-            // Check the current status
+
+        // Check the current status
 		$status = BrokenExternalItemTrackStatus::get_or_create();
 
 		// Calculate items to run
 		$itemTracks = $status->getIncompleteTracks();
+
 		if($limit) $itemTracks = $itemTracks->limit($limit);
 
 		// Check each item
 		foreach ($itemTracks as $itemTrack) {
+
 			// Flag as complete
 			$itemTrack->Processed = 1;
 			$itemTrack->write();
 
 			// Check value of html area
 			$item = $itemTrack->Item();
+
+			$checkField = $itemTrack->CheckField;
+
 			$this->log("Checking {$item->Title}");
-			$htmlValue = Injector::inst()->create('HTMLValue', $item->Description);
+			$htmlValue = Injector::inst()->create('HTMLValue', $item->$checkField);
 			if (!$htmlValue->isValid()) continue;
 
 			// Check each link
 			$links = $htmlValue->getElementsByTagName('a');
+
 			foreach($links as $link) {
 				$this->checkItemLink($itemTrack, $link);
 			}
