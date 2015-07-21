@@ -9,7 +9,14 @@ by Kirk Mayo at Silverstripe.
 
 ### This fork
 
-This is a fork which removes a core piece of the module's functionality. With this fork installed, the module will no 
+This is a fork which swaps the use of SiteTree for that of DataSet, enabling Data.govt.nz to check external links within
+ the content of the thousands of datasets. Implementing this module means the external broken link checker will no 
+longer report on broken links within pages. A future state of development would involve allowing configuration to 
+determine which Class/Field combinations are checked.
+ 
+### Parent fork
+
+This parent of this fork removes a core piece of the module's functionality. With this fork installed, the module will no 
 longer write the `ss-broken` css class to broken URLs. The reason for this change is that saving the modified record
 to the database changes the publication date of versioned content, pushing it back to the top of RSS feeds and Recently
 Edited Pages.
@@ -21,7 +28,7 @@ Mayo.
 
 ## Maintainer Contact
 
-	* Leigh Harrison: leigh (dot) harrison (at) dia (dot) govt (dot) nz
+	* Julian Thomson: julian (dot) thomson (at) dia (dot) govt (dot) nz
 
 ## Requirements
 
@@ -74,7 +81,7 @@ broken links.
 
 ## Queued job ##
 
-If you have the queuedjobs module installed you can set the task to be run every so ofter
+If you have the queuedjobs module installed you can set the task to be run every so often
 Add the following yml config to config.yml in mysite/_config have the the task run once every day (86400 seconds)
 
     CheckExternalLinks:
