@@ -7,6 +7,16 @@
 The external links module is a task and ModelAdmin to track and to report on broken external links. It is maintained 
 by Kirk Mayo at Silverstripe.
 
+## Usage
+
+Enter your configuration into the main config.yml file following the below pattern
+
+LinkChecker:
+  classes_to_check:
+    - DataSet
+Dataset:
+  link_check_field: 'Description'
+
 ### This fork
 
 This is a fork which swaps the use of SiteTree for that of DataSet, enabling Data.govt.nz to check external links within
