@@ -65,12 +65,7 @@ class CheckExternalLinksTask extends BuildTask {
 	 */
 	protected function checkItemLink(BrokenExternalItemTrack $itemTrack, DOMNode $link, Int $rawURL) {
 
-
-        var_dump($rawURL);
-
-
-		if ($rawURL > 0) {
-
+			// Check link
 			$httpCode = $this->linkChecker->checkLink($link);
 			if($httpCode === null) return; // Null link means uncheckable, such as an internal link
 
@@ -79,48 +74,16 @@ class CheckExternalLinksTask extends BuildTask {
 				// Create broken record
 				$brokenLink = new BrokenExternalLink();
 				$brokenLink->Link = $link;
+                $brokenLink->ClassChecked = $itemTrack->CheckClass;
+                $brokenLink->FieldChecked = $itemTrack->CheckField;
 				$brokenLink->HTTPCode = $httpCode;
 				$brokenLink->TrackID = $itemTrack->ID;
 				$brokenLink->StatusID = $itemTrack->StatusID; // Slight denormalisation here for performance reasons
 				$brokenLink->write();
 			}
 
-		} else {
+			return;
 
-			$class = $link->getAttribute('class');
-			$href = $link->getAttribute('href');
-			$markedBroken = preg_match('/\b(ss-broken)\b/', $class);
-
-
-
-            var_dump($class);
-            var_dump($href);
-
-
-			// Check link
-			$httpCode = $this->linkChecker->checkLink($href);
-			if($httpCode === null) return; // Null link means uncheckable, such as an internal link
-
-			// If this code is broken then mark as such
-			if($foundBroken = $this->isCodeBroken($httpCode)) {
-				// Create broken record
-				$brokenLink = new BrokenExternalLink();
-				$brokenLink->Link = $href;
-				$brokenLink->HTTPCode = $httpCode;
-				$brokenLink->TrackID = $itemTrack->ID;
-				$brokenLink->StatusID = $itemTrack->StatusID; // Slight denormalisation here for performance reasons
-				$brokenLink->write();
-			}
-        }
-
-			// Check if we need to update CSS class, otherwise return
-			if($markedBroken == $foundBroken) return;
-			if($foundBroken) {
-				$class .= ' ss-broken';
-			} else {
-				$class = preg_replace('/\s*\b(ss-broken)\b\s*/', ' ', $class);
-			}
-			$link->setAttribute('class', trim($class));
 	}
 
 	/**
@@ -148,21 +111,12 @@ class CheckExternalLinksTask extends BuildTask {
 	 * @return BrokenExternalItemTrackStatus
 	 */
 	public function runLinksCheck($limit = null) {
-
-        // Should we update broken links in the database?
-        $addClass = Config::inst()->get('ExternalLinks', 'externallinksAddClass');
-
         // Check the current status
 		$status = BrokenExternalItemTrackStatus::get_or_create();
 
 		// Calculate items to run
 		$itemTracks = $status->getIncompleteTracks();
 		if($limit) $itemTracks = $itemTracks->limit($limit);
-
-
-
-
-
 
 		// Check each item
 		foreach ($itemTracks as $itemTrack) {
@@ -171,63 +125,37 @@ class CheckExternalLinksTask extends BuildTask {
 			$itemTrack->Processed = 1;
 			$itemTrack->write();
 
-			// Check value of html area
 			$item = $itemTrack->Item();
 
             // Check if it has SiteTree as a parent
             $classAncestry = ClassInfo::ancestry($item->ClassName, $tablesOnly = false);
+
             if (in_array($item->ClassName, $classAncestry)) {
                 $className = 'SiteTree';
             } else {
-                $className = $item->ClassName;
+                $className = $itemTrack->CheckClass;
             }
-
-
             $this->log("Checking {$item->Title} - ClassName: {$className}");
 
             // Define the field to be checked
-			$checkField = Config::inst()->get($item->ClassName, 'link_check_field');
+			$checkField = $itemTrack->CheckField;
 
+            $links = LinkParser::find_links($item->$checkField);
 
-
-			if (Config::inst()->get($itemTrack->CheckClass, 'link_check_uses_a') > 0) {
-
-				$htmlValue = Injector::inst()->create('HTMLValue', $item->$checkField);
-				if (!$htmlValue->isValid()) continue;
-
-				// Check each link
-				$links = $htmlValue->getElementsByTagName('a');
-
-				foreach($links as $link) {
-					$this->checkItemLink($itemTrack, $link, 0);
-				}
-
-
-			} else {
-				$this->checkItemLink($itemTrack, $item->$checkField, 1);
-			}
-
-
-
-
-			// If configured to do so, update content of item based on link fixes / breakages
-            if ($addClass) {
-                $htmlValue->saveHTML();
-                $item->Content = $htmlValue->getContent();
-                $item->write();
+            foreach($links as $link) {
+                $this->checkItemLink($itemTrack, $link, 0);
             }
-
 
 			// Once all links have been created for this item update HasBrokenLinks
 			$count = $itemTrack->BrokenLinks()->count();
-			$this->log("Found {$count} broken links");
-			if($count) {
+			//$this->log("Found {$count} broken links");
+			/*if($count) {
 				// Bypass the ORM as syncLinkTracking does not allow you to update HasBrokenLink to true
 				DB::query(sprintf(
 					'UPDATE "SiteTree" SET "HasBrokenLink" = 1 WHERE "ID" = \'%d\'',
 					intval($itemTrack->ID)
 				));
-			}
+			}*/
 		}
 
 		$status->updateJobInfo('Updating completed items');
