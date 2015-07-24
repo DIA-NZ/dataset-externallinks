@@ -35,7 +35,7 @@ class BrokenExternalItemTrack extends DataObject {
     }
 
 	/**
-	 * @return SiteTree
+	 * @return DataList
 	 */
 	public function Item() {
         
