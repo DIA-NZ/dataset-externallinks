@@ -41,7 +41,9 @@ class BrokenExternalLinksReport extends SS_Report {
 						Convert::raw2xml($item->Title)
 					);
 				}
-			)
+			),
+            'ClassChecked' => 'Class',
+            'FieldChecked' => 'Field',
 		);
 	}
 
