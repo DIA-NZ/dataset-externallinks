@@ -144,8 +144,10 @@ class ExternalLinksTest extends SapphireTest {
 	}
 }
 
-class ExternalLinksTest_Item extends Item implements TestOnly {
+class ExternalLinksTest_Item extends DataObject implements TestOnly {
 	private static $db = array(
+		'Title' => 'Text',
+		'Content' => 'HTMLText',
 		'ExpectedContent' => 'HTMLText'
 	);
 }
