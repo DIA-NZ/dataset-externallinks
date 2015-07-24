@@ -100,20 +100,22 @@ class BrokenExternalItemTrackStatus extends DataObject {
 
 		$classes_to_check = Config::inst()->get('LinkChecker', 'classes_to_check');
 
-		foreach ($classes_to_check as $class) {
+		foreach ($classes_to_check as $class => $fieldsToCheck) {
 
-			$itemSet = DataList::create($class);
-			$checkField = Config::inst()->get($class, 'link_check_field');
+            foreach ($fieldsToCheck as $field ) {
 
-			foreach ($itemSet  as $item) {
-				$trackItem = BrokenExternalItemTrack::create();
+                $itemSet = DataList::create($class);
 
-				$trackItem->CheckClass = $item->ClassName;
-				$trackItem->CheckField = $checkField;
-				$trackItem->ItemID = $item->ID;
-				$trackItem->StatusID = $status->ID;
-				$trackItem->write();
-			}
+                foreach ($itemSet as $item) {
+                    $trackItem = BrokenExternalItemTrack::create();
+
+                    $trackItem->CheckClass = $class;
+                    $trackItem->CheckField = $field;
+                    $trackItem->ItemID = $item->ID;
+                    $trackItem->StatusID = $status->ID;
+                    $trackItem->write();
+                }
+            }
 		}
 
 		return $status;
