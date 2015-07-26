@@ -4,8 +4,14 @@
 
 ### Core module
 
-The external links module is a task and ModelAdmin to track and to report on broken external links. It is maintained 
+The external links module is a task and ModelAdmin to track and to report on broken external links. It is maintained
 by Kirk Mayo at Silverstripe.
+
+### This fork
+
+This is a fork which allows configuration to specify which fields in which classes should be checked for broken links.
+It also removes the behaviour of writing the `ss-broken` css class to broken URLs entirely, which was made option in
+the parent fork.
 
 ## Usage
 
@@ -13,16 +19,10 @@ Enter your configuration into the main config.yml file following the below patte
 
 LinkChecker:
   classes_to_check:
-    - DataSet
-Dataset:
-  link_check_field: 'Description'
-
-### This fork
-
-This is a fork which swaps the use of SiteTree for that of DataSet, enabling Data.govt.nz to check external links within
- the content of the thousands of datasets. Implementing this module means the external broken link checker will no 
-longer report on broken links within pages. A future state of development would involve allowing configuration to 
-determine which Class/Field combinations are checked.
+    SiteTree:
+        - Content
+    Dataset:
+        - Url
  
 ### Parent fork
 
