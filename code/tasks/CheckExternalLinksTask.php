@@ -16,9 +16,9 @@ class CheckExternalLinksTask extends BuildTask {
 	 */
 	protected $linkChecker;
 
-	protected $title = 'Checking broken External links in the SiteTree';
+	protected $title = 'Checking broken External links in configured items';
 
-	protected $description = 'A task that records external broken links in the SiteTree';
+	protected $description = 'A task that records external broken links in configured items';
 
 	protected $enabled = true;
 
@@ -58,32 +58,30 @@ class CheckExternalLinksTask extends BuildTask {
 	}
 
 	/**
-	 * Check the status of a single link on a item
+	 * Check the status of a single link on an item
 	 *
 	 * @param BrokenExternalItemTrack $itemTrack
 	 * @param DOMNode $link
 	 */
-	protected function checkItemLink(BrokenExternalItemTrack $itemTrack, DOMNode $link, Int $rawURL) {
+	protected function checkItemLink(BrokenExternalItemTrack $itemTrack, DOMNode $link) {
 
-			// Check link
-			$httpCode = $this->linkChecker->checkLink($link);
-			if($httpCode === null) return; // Null link means uncheckable, such as an internal link
+        // Check link
+        $httpCode = $this->linkChecker->checkLink($link);
+        if($httpCode === null) return; // Null link means uncheckable, such as an internal link
 
-			// If this code is broken then mark as such
-			if($foundBroken = $this->isCodeBroken($httpCode)) {
-				// Create broken record
-				$brokenLink = new BrokenExternalLink();
-				$brokenLink->Link = $link;
-                $brokenLink->ClassChecked = $itemTrack->CheckClass;
-                $brokenLink->FieldChecked = $itemTrack->CheckField;
-				$brokenLink->HTTPCode = $httpCode;
-				$brokenLink->TrackID = $itemTrack->ID;
-				$brokenLink->StatusID = $itemTrack->StatusID; // Slight denormalisation here for performance reasons
-				$brokenLink->write();
-			}
-
-			return;
-
+        // If this code is broken then mark as such
+        if($foundBroken = $this->isCodeBroken($httpCode)) {
+            // Create broken record
+            $brokenLink = new BrokenExternalLink();
+            $brokenLink->Link = $link;
+            $brokenLink->HTTPCode = $httpCode;
+            $brokenLink->ClassChecked = $itemTrack->CheckClass;
+            $brokenLink->FieldChecked = $itemTrack->CheckField;
+            $brokenLink->TrackID = $itemTrack->ID;
+            $brokenLink->StatusID = $itemTrack->StatusID; // Slight denormalisation here for performance reasons
+            $brokenLink->write();
+        }
+        return;
 	}
 
 	/**
