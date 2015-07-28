@@ -63,7 +63,7 @@ class CheckExternalLinksTask extends BuildTask {
 	 * @param BrokenExternalItemTrack $itemTrack
 	 * @param DOMNode $link
 	 */
-	protected function checkItemLink(BrokenExternalItemTrack $itemTrack, DOMNode $link) {
+	protected function checkItemLink(BrokenExternalItemTrack $itemTrack, $link) {
 
         // Check link
         $httpCode = $this->linkChecker->checkLink($link);
