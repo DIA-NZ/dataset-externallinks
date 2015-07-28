@@ -17,12 +17,14 @@ the parent fork.
 
 Enter your configuration into the main config.yml file following the below pattern
 
+```
 LinkChecker:
   classes_to_check:
     SiteTree:
-        - Content
+      - Content
     Dataset:
-        - Url
+      - Url
+```
  
 ### Parent fork
 
