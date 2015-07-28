@@ -10,6 +10,8 @@ class ExternalLinksTest extends SapphireTest {
 		'ExternalLinksTest_Item'
 	);
 
+	protected $oldConfig;
+
 	public function setUp() {
 		parent::setUp();
 
@@ -20,6 +22,15 @@ class ExternalLinksTest extends SapphireTest {
 			$this->skipTest = true;
 			return $this->markTestSkipped("These tests need the Phockito module installed to run");
 		}
+
+        $this->oldConfig = Config::inst()->get('LinkChecker', 'classes_to_check');
+
+        Config::inst()->remove('LinkChecker', 'classes_to_check');
+        Config::inst()->update('LinkChecker', 'classes_to_check',
+            array('ExternalLinksTest_Item' =>
+                array('Content')
+            )
+        );
 
 		// Mock link checker
 		$checker = Phockito::mock('LinkChecker');
@@ -48,14 +59,6 @@ class ExternalLinksTest extends SapphireTest {
 			->return(null);
 
 		Phockito::when($checker)
-			->checkLink('home')
-			->return(null);
-
-		Phockito::when($checker)
-			->checkLink('broken-internal')
-			->return(null);
-
-		Phockito::when($checker)
 			->checkLink('[sitetree_link,id=1]')
 			->return(null);
 
@@ -69,6 +72,9 @@ class ExternalLinksTest extends SapphireTest {
 	public function tearDown() {
 		Injector::unnest();
 		parent::tearDown();
+
+        Config::inst()->remove('LinkChecker', 'classes_to_check');
+        Config::inst()->update('LinkChecker', 'classes_to_check', $this->oldConfig);
 	}
 
 	public function testLinks() {
@@ -79,31 +85,28 @@ class ExternalLinksTest extends SapphireTest {
 
 		// Get all links checked
 		$status = BrokenExternalItemTrackStatus::get_latest();
-		$this->assertEquals('Completed', $status->Status);
-		$this->assertEquals(5, $status->TotalItems);
-		$this->assertEquals(5, $status->CompletedItems);
 
-		// Check all items have had the correct HTML adjusted
-		for($i = 1; $i <= 5; $i++) {
-			$item = $this->objFromFixture('ExternalLinksTest_Item', 'item'.$i);
-			$this->assertNotEmpty($item->Content);
-			$this->assertEquals(
-				$item->ExpectedContent,
-				$item->Content,
-				"Assert that the content of item{$i} has been updated"
-			);
-		}
+        // Confirm the link checking was completed
+		$this->assertEquals('Completed', $status->Status);
+
+        // Confirm the count of items to check matches the number of items present
+		$this->assertEquals(4, $status->TotalItems);
+
+        // Confirm the items check completed
+		$this->assertEquals(4, $status->CompletedItems);
 
 		// Check that the correct report of broken links is generated
 		$links = $status
 			->BrokenLinks()
 			->sort('Link');
 
-		$this->assertEquals(4, $links->count());
+        // Confirm the number of broken links is what we expect
+		$this->assertEquals(3, $links->count());
+
+        // Correctly identify those broken links
 		$this->assertEquals(
 			array(
 				'http://www.broken.com',
-				'http://www.broken.com/url/thing',
 				'http://www.broken.com/url/thing',
 				'http://www.nodomain.com'
 			),
@@ -128,10 +131,11 @@ class ExternalLinksTest extends SapphireTest {
 		);
 		$actual = $links->map('Link', 'HTTPCodeDescription')->toArray();
 		$this->assertEquals($expected, $actual);
+
 	}
 
 	/**
-	 * Test that broken links appears in the reports list
+	 * Test that broken links report appears in the reports list
 	 */
 	public function testReportExists() {
 		$reports = SS_Report::get_reports();
@@ -147,7 +151,6 @@ class ExternalLinksTest extends SapphireTest {
 class ExternalLinksTest_Item extends DataObject implements TestOnly {
 	private static $db = array(
 		'Title' => 'Text',
-		'Content' => 'HTMLText',
-		'ExpectedContent' => 'HTMLText'
+		'Content' => 'HTMLText'
 	);
 }
