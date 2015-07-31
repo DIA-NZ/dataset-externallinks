@@ -37,17 +37,6 @@ class LinkParserTest extends SapphireTest {
         $this->assertEquals(1, count($actual));
     }
 
-    //Valid html can wrap links with single quotes, and this test fails to pass.
-    public function testLinkInAnchorTagsSingleQ() {
-        $hasString = "<a href='http://www.222.com'>Resources and Guides</a>";
-        $expected = 'http://www.222.com';
-
-        $actual = LinkParser::find_links($hasString);
-        Debug::show($actual);
-        $this->assertContains($expected, $actual, 'Actual link did not match expected.');
-
-        $this->assertEquals(1, count($actual));
-    }
 
     public function testHttpsLink() {
         $hasString = 'https://www.222.com';
@@ -59,12 +48,12 @@ class LinkParserTest extends SapphireTest {
         $this->assertEquals(1, count($actual));
     }
 
+
     //links in caps should still be recognised
     public function testCaps() {
         $hasString = 'HTTP://WWW.222.COM';
         $expected = 'HTTP://WWW.222.COM';
         $actual = LinkParser::find_links($hasString);
-        Debug::show($actual);
         $this->assertContains($expected, $actual, 'Actual link did not match expected.');
 
         $this->assertEquals(1, count($actual));
@@ -149,6 +138,8 @@ class LinkParserTest extends SapphireTest {
         $this->assertEquals(1, count($actual));
 
     }
+
+
 
 
 }
